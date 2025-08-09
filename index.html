@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="id" class="">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ZenSpace: Anti-Stress Toolkit</title>
+
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <!-- Tone.js for generating sounds -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+
+    <style>
+      /* Custom styles for a Zen feel */
+      body {
+        font-family: "Inter", sans-serif;
+      }
+
+      /* Base theme (Light - Black & White) */
+      :root {
+        --bg-primary: #ffffff; /* white */
+        --bg-secondary: #f4f4f5; /* zinc-100 */
+        --text-primary: #18181b; /* zinc-900 */
+        --text-secondary: #71717a; /* zinc-500 */
+        --accent-color: #e4e4e7; /* zinc-200 */
+        --accent-focus: #d4d4d8; /* zinc-300 */
+        --border-color: #e4e4e7; /* zinc-200 */
+      }
+
+      /* High-contrast theme (Dark - Black & White) */
+      .dark {
+        --bg-primary: #09090b; /* zinc-950 */
+        --bg-secondary: #18181b; /* zinc-900 */
+        --text-primary: #fafafa; /* zinc-50 */
+        --text-secondary: #a1a1aa; /* zinc-400 */
+        --accent-color: #27272a; /* zinc-800 */
+        --accent-focus: #3f3f46; /* zinc-700 */
+        --border-color: #27272a; /* zinc-800 */
+      }
+
+      /* Applying theme colors */
+      .theme-bg-primary {
+        background-color: var(--bg-primary);
+      }
+      .theme-bg-secondary {
+        background-color: var(--bg-secondary);
+      }
+      .theme-text-primary {
+        color: var(--text-primary);
+      }
+      .theme-text-secondary {
+        color: var(--text-secondary);
+      }
+      .theme-accent {
+        background-color: var(--accent-color);
+      }
+      .theme-border {
+        border-color: var(--border-color);
+      }
+      .theme-ring-accent:focus {
+        ring-color: var(--accent-focus);
+      }
+
+      /* Breathing animation */
+      @keyframes breathe {
+        0%,
+        100% {
+          transform: scale(0.8);
+          opacity: 0.8;
+        }
+        50% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .breathing-circle {
+        animation: breathe 8s ease-in-out infinite;
+      }
+
+      /* Smooth transitions */
+      * {
+        transition: background-color 0.3s ease, color 0.3s ease,
+          border-color 0.3s ease;
+      }
+
+      /* Custom scrollbar for journal */
+      #journal-textarea::-webkit-scrollbar {
+        width: 8px;
+      }
+      #journal-textarea::-webkit-scrollbar-track {
+        background: var(--bg-primary);
+      }
+      #journal-textarea::-webkit-scrollbar-thumb {
+        background-color: var(--accent-color);
+        border-radius: 20px;
+      }
+
+      .sound-btn.active {
+        background-color: var(--accent-color);
+      }
+
+      /* Mood Tracker Calendar */
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+      }
+      .calendar-day {
+        aspect-ratio: 1 / 1;
+      }
+      .mood-emoji {
+        transform: scale(0.8);
+      }
+      .mood-selector .mood-option.selected {
+        transform: scale(1.2);
+        border: 2px solid var(--accent-focus);
+      }
+
+      /* Active Navigation State */
+      .nav-btn.nav-active {
+        color: var(--accent-focus) !important;
+      }
+      .desktop-nav .nav-btn.nav-active {
+        background-color: var(--accent-color);
+        color: var(--text-primary) !important;
+      }
+    </style>
+  </head>
+  <body class="theme-bg-primary theme-text-primary">
+    <div class="md:flex md:flex-row">
+      <!-- Desktop Sidebar Navigation -->
+      <nav
+        class="desktop-nav hidden md:flex md:flex-col md:w-64 md:p-4 md:space-y-2 md:border-r theme-border theme-bg-secondary h-screen sticky top-0"
+      >
+        <div class="px-2 mb-6 flex justify-between items-center">
+          <h1 class="text-2xl font-bold theme-text-primary">ZenSpace</h1>
+          <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-sun theme-text-secondary text-sm"></i>
+            <label
+              for="theme-toggle-desktop"
+              class="relative inline-flex items-center cursor-pointer"
+            >
+              <input
+                type="checkbox"
+                id="theme-toggle-desktop"
+                class="sr-only peer"
+              />
+              <div
+                class="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-600"
+              ></div>
+            </label>
+            <i class="fa-solid fa-moon theme-text-secondary text-sm"></i>
+          </div>
+        </div>
+        <button
+          data-target="sounds-section"
+          class="nav-btn flex items-center space-x-4 p-3 rounded-lg text-left theme-text-secondary"
+        >
+          <i class="fa-solid fa-music w-6 text-center text-lg"></i>
+          <span class="font-medium">Suara Alam</span>
+        </button>
+        <button
+          data-target="meditation-section"
+          class="nav-btn flex items-center space-x-4 p-3 rounded-lg text-left theme-text-secondary"
+        >
+          <i class="fa-solid fa-om w-6 text-center text-lg"></i>
+          <span class="font-medium">Meditasi</span>
+        </button>
+        <button
+          data-target="breathing-section"
+          class="nav-btn flex items-center space-x-4 p-3 rounded-lg text-left theme-text-secondary"
+        >
+          <i class="fa-solid fa-wind w-6 text-center text-lg"></i>
+          <span class="font-medium">Pernapasan</span>
+        </button>
+        <button
+          data-target="mood-section"
+          class="nav-btn flex items-center space-x-4 p-3 rounded-lg text-left theme-text-secondary"
+        >
+          <i class="fa-solid fa-face-smile w-6 text-center text-lg"></i>
+          <span class="font-medium">Suasana Hati</span>
+        </button>
+        <button
+          data-target="journal-section"
+          class="nav-btn flex items-center space-x-4 p-3 rounded-lg text-left theme-text-secondary"
+        >
+          <i class="fa-solid fa-book-open w-6 text-center text-lg"></i>
+          <span class="font-medium">Jurnal</span>
+        </button>
+        <button
+          data-target="timer-section"
+          class="nav-btn flex items-center space-x-4 p-3 rounded-lg text-left theme-text-secondary"
+        >
+          <i class="fa-solid fa-stopwatch w-6 text-center text-lg"></i>
+          <span class="font-medium">Timer</span>
+        </button>
+        <!-- Desktop Watermark -->
+        <a
+          href="https://www.instagram.com/rahmdsai"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="mt-auto p-2 text-center text-xs theme-text-secondary opacity-75 hover:opacity-100"
+        >
+          Created by Rahmad Sains
+        </a>
+      </nav>
+
+      <!-- Main App Container -->
+      <div id="app-container" class="w-full pb-24 md:pb-8">
+        <header class="p-4 md:hidden flex justify-between items-center">
+          <h1 class="text-xl font-bold theme-text-primary">ZenSpace</h1>
+          <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-sun theme-text-secondary"></i>
+            <label
+              for="theme-toggle-mobile"
+              class="relative inline-flex items-center cursor-pointer"
+            >
+              <input
+                type="checkbox"
+                id="theme-toggle-mobile"
+                class="sr-only peer"
+              />
+              <div
+                class="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-600"
+              ></div>
+            </label>
+            <i class="fa-solid fa-moon theme-text-secondary"></i>
+          </div>
+        </header>
+
+        <main id="main-content" class="p-4 md:p-8">
+          <!-- Sections remain here -->
+          <section id="sounds-section" class="tool-section">
+            <div class="mb-8 p-4 theme-bg-secondary rounded-xl shadow-sm">
+              <p
+                id="daily-quote-text"
+                class="text-center italic theme-text-primary"
+              >
+                Memuat kutipan...
+              </p>
+              <p
+                id="daily-quote-author"
+                class="text-center text-sm theme-text-secondary mt-2"
+              ></p>
+            </div>
+            <!-- Mobile Watermark -->
+            <a
+              href="https://www.instagram.com/rahmdsai"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="md:hidden block text-center mb-8 text-xs theme-text-secondary opacity-75 hover:opacity-100"
+            >
+              Created by Rahmad Sains
+            </a>
+            <h2 class="text-2xl font-semibold mb-4 text-center">Suara Alam</h2>
+            <p class="theme-text-secondary text-center mb-6">
+              Pilih dan gabungkan beberapa suara.
+            </p>
+            <div
+              id="sound-grid"
+              class="grid grid-cols-2 md:grid-cols-3 gap-4"
+            ></div>
+          </section>
+          <section id="meditation-section" class="tool-section hidden">
+            <h2 class="text-2xl font-semibold mb-4 text-center">
+              Meditasi Terpandu
+            </h2>
+            <p class="theme-text-secondary text-center mb-6">
+              Unggah & putar audio meditasi Anda.
+            </p>
+            <div id="meditation-tracks" class="space-y-4"></div>
+            <a
+              href="https://www.instagram.com/rahmdsai"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="md:hidden block text-center mt-8 text-xs theme-text-secondary opacity-75 hover:opacity-100"
+            >
+              Created by Rahmad Sains
+            </a>
+          </section>
+          <section id="breathing-section" class="tool-section hidden">
+            <h2 class="text-2xl font-semibold mb-4 text-center">
+              Latihan Pernapasan
+            </h2>
+            <p class="theme-text-secondary text-center mb-12">
+              Ikuti lingkaran untuk menenangkan pikiran.
+            </p>
+            <div class="flex flex-col items-center justify-center h-64">
+              <div class="relative w-48 h-48 md:w-56 md:h-56">
+                <div
+                  class="breathing-circle theme-accent w-full h-full rounded-full"
+                ></div>
+                <div
+                  id="breathing-text"
+                  class="absolute inset-0 flex items-center justify-center text-xl font-medium theme-text-primary"
+                >
+                  Tarik Napas
+                </div>
+              </div>
+            </div>
+            <a
+              href="https://www.instagram.com/rahmdsai"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="md:hidden block text-center mt-12 text-xs theme-text-secondary opacity-75 hover:opacity-100"
+            >
+              Created by Rahmad Sains
+            </a>
+          </section>
+          <section id="journal-section" class="tool-section hidden">
+            <h2 class="text-2xl font-semibold mb-4 text-center">
+              Jurnal Harian
+            </h2>
+            <p class="theme-text-secondary text-center mb-6">
+              Tuliskan pikiranmu. Disimpan otomatis.
+            </p>
+            <textarea
+              id="journal-textarea"
+              class="w-full h-80 p-4 theme-bg-secondary theme-text-primary rounded-xl shadow-sm border theme-border focus:outline-none focus:ring-2 theme-ring-accent"
+              placeholder="Mulai menulis..."
+            ></textarea>
+            <a
+              href="https://www.instagram.com/rahmdsai"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="md:hidden block text-center mt-8 text-xs theme-text-secondary opacity-75 hover:opacity-100"
+            >
+              Created by Rahmad Sains
+            </a>
+          </section>
+          <section id="mood-section" class="tool-section hidden">
+            <h2 class="text-2xl font-semibold mb-4 text-center">
+              Pelacak Suasana Hati
+            </h2>
+            <p class="theme-text-secondary text-center mb-6">
+              Bagaimana perasaanmu hari ini?
+            </p>
+            <div
+              class="flex justify-center space-x-2 md:space-x-4 mb-8 mood-selector"
+            ></div>
+            <div
+              id="calendar-container"
+              class="theme-bg-secondary p-4 rounded-xl shadow-sm"
+            >
+              <div class="flex justify-between items-center mb-4">
+                <button
+                  id="prev-month-btn"
+                  class="p-2 rounded-full hover:theme-accent"
+                >
+                  <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <h3
+                  id="calendar-header"
+                  class="font-bold text-lg theme-text-primary"
+                ></h3>
+                <button
+                  id="next-month-btn"
+                  class="p-2 rounded-full hover:theme-accent"
+                >
+                  <i class="fa-solid fa-chevron-right"></i>
+                </button>
+              </div>
+              <div class="calendar-grid text-sm">
+                <div class="text-center font-bold theme-text-secondary">
+                  Min
+                </div>
+                <div class="text-center font-bold theme-text-secondary">
+                  Sen
+                </div>
+                <div class="text-center font-bold theme-text-secondary">
+                  Sel
+                </div>
+                <div class="text-center font-bold theme-text-secondary">
+                  Rab
+                </div>
+                <div class="text-center font-bold theme-text-secondary">
+                  Kam
+                </div>
+                <div class="text-center font-bold theme-text-secondary">
+                  Jum
+                </div>
+                <div class="text-center font-bold theme-text-secondary">
+                  Sab
+                </div>
+              </div>
+              <div id="calendar-body" class="calendar-grid"></div>
+            </div>
+            <a
+              href="https://www.instagram.com/rahmdsai"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="md:hidden block text-center mt-8 text-xs theme-text-secondary opacity-75 hover:opacity-100"
+            >
+              Created by Rahmad Sains
+            </a>
+          </section>
+          <section id="timer-section" class="tool-section hidden">
+            <h2 class="text-2xl font-semibold mb-4 text-center">Timer Fokus</h2>
+            <div class="flex justify-center items-center mb-6">
+              <div
+                id="timer-display"
+                class="text-7xl md:text-8xl font-bold theme-text-primary tracking-wider"
+              >
+                25:00
+              </div>
+            </div>
+            <div class="flex justify-center space-x-4 mb-8">
+              <button
+                id="timer-mode-focus"
+                class="px-5 py-2 rounded-full theme-accent theme-text-primary font-bold"
+              >
+                Fokus</button
+              ><button
+                id="timer-mode-break"
+                class="px-5 py-2 rounded-full theme-bg-secondary theme-text-primary font-bold"
+              >
+                Istirahat
+              </button>
+            </div>
+            <div class="flex justify-center space-x-4 mb-8">
+              <button
+                id="timer-start"
+                class="px-8 py-3 theme-accent theme-text-primary font-bold rounded-full shadow-sm hover:scale-105 transform transition-transform"
+              >
+                Mulai</button
+              ><button
+                id="timer-pause"
+                class="px-8 py-3 theme-bg-secondary theme-text-primary font-bold rounded-full shadow-sm hover:scale-105 transform transition-transform hidden"
+              >
+                Jeda</button
+              ><button
+                id="timer-reset"
+                class="px-8 py-3 theme-bg-secondary theme-text-primary font-bold rounded-full shadow-sm hover:scale-105 transform transition-transform"
+              >
+                Reset
+              </button>
+            </div>
+            <div class="mt-10 text-center">
+              <details class="theme-text-secondary">
+                <summary class="cursor-pointer font-semibold">
+                  Pengaturan Durasi
+                </summary>
+                <div
+                  class="mt-4 flex justify-center items-center space-x-4 p-4 theme-bg-secondary rounded-lg"
+                >
+                  <div>
+                    <label
+                      for="focus-duration"
+                      class="block text-sm font-medium"
+                      >Fokus (menit)</label
+                    ><input
+                      type="number"
+                      id="focus-duration"
+                      value="25"
+                      class="w-20 p-2 text-center theme-bg-primary rounded-md border theme-border"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      for="break-duration"
+                      class="block text-sm font-medium"
+                      >Istirahat (menit)</label
+                    ><input
+                      type="number"
+                      id="break-duration"
+                      value="5"
+                      class="w-20 p-2 text-center theme-bg-primary rounded-md border theme-border"
+                    />
+                  </div>
+                </div>
+              </details>
+            </div>
+            <a
+              href="https://www.instagram.com/rahmdsai"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="md:hidden block text-center mt-8 text-xs theme-text-secondary opacity-75 hover:opacity-100"
+            >
+              Created by Rahmad Sains
+            </a>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <!-- Mobile Bottom Nav -->
+    <nav
+      class="mobile-nav md:hidden fixed bottom-0 left-0 right-0 theme-bg-secondary border-t theme-border shadow-t-lg z-10"
+    >
+      <div class="flex justify-around max-w-lg mx-auto">
+        <button
+          data-target="sounds-section"
+          class="nav-btn flex-1 p-3 text-center theme-text-secondary"
+        >
+          <i class="fa-solid fa-music text-lg"></i>
+        </button>
+        <button
+          data-target="meditation-section"
+          class="nav-btn flex-1 p-3 text-center theme-text-secondary"
+        >
+          <i class="fa-solid fa-om text-lg"></i>
+        </button>
+        <button
+          data-target="breathing-section"
+          class="nav-btn flex-1 p-3 text-center theme-text-secondary"
+        >
+          <i class="fa-solid fa-wind text-lg"></i>
+        </button>
+        <button
+          data-target="mood-section"
+          class="nav-btn flex-1 p-3 text-center theme-text-secondary"
+        >
+          <i class="fa-solid fa-face-smile text-lg"></i>
+        </button>
+        <button
+          data-target="journal-section"
+          class="nav-btn flex-1 p-3 text-center theme-text-secondary"
+        >
+          <i class="fa-solid fa-book-open text-lg"></i>
+        </button>
+        <button
+          data-target="timer-section"
+          class="nav-btn flex-1 p-3 text-center theme-text-secondary"
+        >
+          <i class="fa-solid fa-stopwatch text-lg"></i>
+        </button>
+      </div>
+    </nav>
+
+    <div
+      id="custom-alert"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+    >
+      <div
+        class="theme-bg-secondary p-6 rounded-lg shadow-xl text-center max-w-sm mx-auto"
+      >
+        <p id="custom-alert-message" class="theme-text-primary mb-4 text-lg">
+          Pesan
+        </p>
+        <button
+          id="custom-alert-close"
+          class="px-6 py-2 theme-accent theme-text-primary font-bold rounded-full"
+        >
+          OK
+        </button>
+      </div>
+    </div>
+
+    <script>
+      (() => {
+        document.addEventListener("DOMContentLoaded", () => {
+          const appState = {
+            activeSounds: new Map(),
+            activeMeditation: null,
+            timer: {
+              interval: null,
+              timeLeft: 25 * 60,
+              mode: "focus",
+              isRunning: false,
+            },
+            mood: { currentDate: new Date() },
+          };
+
+          initComponents();
+          initNavigation();
+          initTheme();
+          initDailyQuote();
+          initSoundSystem();
+          initMeditation();
+          initJournal();
+          initMoodTracker();
+          initFocusTimer();
+
+          function initComponents() {
+            window.app = {
+              sections: document.querySelectorAll(".tool-section"),
+              navButtons: document.querySelectorAll(".nav-btn"),
+              themeToggleMobile: document.getElementById("theme-toggle-mobile"),
+              themeToggleDesktop: document.getElementById(
+                "theme-toggle-desktop"
+              ),
+              htmlElement: document.documentElement,
+              customAlert: document.getElementById("custom-alert"),
+              customAlertMessage: document.getElementById(
+                "custom-alert-message"
+              ),
+              customAlertClose: document.getElementById("custom-alert-close"),
+              soundGrid: document.getElementById("sound-grid"),
+              meditationTracksContainer:
+                document.getElementById("meditation-tracks"),
+              journalTextarea: document.getElementById("journal-textarea"),
+              timerDisplay: document.getElementById("timer-display"),
+              timerStartBtn: document.getElementById("timer-start"),
+              timerPauseBtn: document.getElementById("timer-pause"),
+              timerResetBtn: document.getElementById("timer-reset"),
+              timerModeFocusBtn: document.getElementById("timer-mode-focus"),
+              timerModeBreakBtn: document.getElementById("timer-mode-break"),
+              focusDurationInput: document.getElementById("focus-duration"),
+              breakDurationInput: document.getElementById("break-duration"),
+              quoteText: document.getElementById("daily-quote-text"),
+              quoteAuthor: document.getElementById("daily-quote-author"),
+              moodSelector: document.querySelector(".mood-selector"),
+              calendarHeader: document.getElementById("calendar-header"),
+              calendarBody: document.getElementById("calendar-body"),
+              prevMonthBtn: document.getElementById("prev-month-btn"),
+              nextMonthBtn: document.getElementById("next-month-btn"),
+            };
+            app.customAlertClose.addEventListener("click", () =>
+              app.customAlert.classList.add("hidden")
+            );
+          }
+
+          function showAlert(message) {
+            app.customAlertMessage.textContent = message;
+            app.customAlert.classList.remove("hidden");
+          }
+
+          function initNavigation() {
+            const defaultTab = "sounds-section";
+            app.navButtons.forEach((button) => {
+              button.addEventListener("click", () =>
+                switchTab(button.dataset.target)
+              );
+            });
+            switchTab(localStorage.getItem("zenLastTab") || defaultTab);
+          }
+
+          function switchTab(targetId) {
+            if (!document.getElementById(targetId)) return;
+            app.sections.forEach((section) =>
+              section.classList.toggle("hidden", section.id !== targetId)
+            );
+            app.navButtons.forEach((button) => {
+              button.classList.toggle(
+                "nav-active",
+                button.dataset.target === targetId
+              );
+            });
+            localStorage.setItem("zenLastTab", targetId);
+          }
+
+          function initTheme() {
+            const savedTheme = localStorage.getItem("zenTheme") || "light";
+            applyTheme(savedTheme);
+            const handleThemeChange = (e) => {
+              const newTheme = e.target.checked ? "dark" : "light";
+              localStorage.setItem("zenTheme", newTheme);
+              applyTheme(newTheme);
+            };
+            app.themeToggleMobile.addEventListener("change", handleThemeChange);
+            app.themeToggleDesktop.addEventListener(
+              "change",
+              handleThemeChange
+            );
+          }
+
+          function applyTheme(theme) {
+            const isDark = theme === "dark";
+            app.themeToggleMobile.checked = isDark;
+            app.themeToggleDesktop.checked = isDark;
+            app.htmlElement.classList.toggle("dark", isDark);
+          }
+
+          function initDailyQuote() {
+            const quotes = [
+              {
+                text: "Satu-satunya perjalanan yang mustahil adalah yang tidak pernah Anda mulai.",
+                author: "Tony Robbins",
+              },
+              {
+                text: "Ketenangan datang dari dalam. Jangan mencarinya di luar.",
+                author: "Buddha",
+              },
+              {
+                text: "Bernapas adalah kekuatan super terbesarmu.",
+                author: "Wim Hof",
+              },
+              {
+                text: "Hari ini adalah kesempatan untuk membangun hari esok yang Anda inginkan.",
+                author: "Ken Poirot",
+              },
+              {
+                text: "Setiap bunga mekar pada waktunya sendiri.",
+                author: "Pepatah Zen",
+              },
+            ];
+            const dayOfYear = Math.floor(
+              (new Date() - new Date(new Date().getFullYear(), 0, 0)) /
+                (1000 * 60 * 60 * 24)
+            );
+            const quote = quotes[dayOfYear % quotes.length];
+            app.quoteText.textContent = `"${quote.text}"`;
+            app.quoteAuthor.textContent = `- ${quote.author}`;
+          }
+
+          // --- SOUND SYSTEM (IMPROVED) ---
+          function initSoundSystem() {
+            const soundData = [
+              // Simple Noises
+              {
+                id: "rain",
+                name: "Hujan",
+                icon: "fa-cloud-showers-heavy",
+                type: "noise",
+                options: { type: "pink", volume: -20 },
+              },
+              {
+                id: "forest",
+                name: "Hutan",
+                icon: "fa-tree",
+                type: "noise",
+                options: { type: "brown", volume: -25 },
+              },
+              {
+                id: "whitenoise",
+                name: "Derau Putih",
+                icon: "fa-wave-square",
+                type: "noise",
+                options: { type: "white", volume: -22 },
+              },
+              {
+                id: "library",
+                name: "Perpustakaan",
+                icon: "fa-book-bookmark",
+                type: "noise",
+                options: { type: "pink", volume: -35 },
+              },
+
+              // Filtered Noises
+              {
+                id: "waves",
+                name: "Ombak",
+                icon: "fa-water",
+                type: "noise-filtered",
+                options: {
+                  type: "white",
+                  volume: -18,
+                  filter: { type: "lowpass", freq: 400, Q: 1 },
+                  lfo: { type: "sine", freq: 0.2, min: 200, max: 800 },
+                },
+              },
+              {
+                id: "fire",
+                name: "Api",
+                icon: "fa-fire",
+                type: "noise-filtered",
+                options: {
+                  type: "brown",
+                  volume: -22,
+                  filter: { type: "highpass", freq: 1000, Q: 1 },
+                  lfo: { type: "sine", freq: 2, min: 1000, max: 1500 },
+                },
+              },
+              {
+                id: "thunder",
+                name: "Guntur",
+                icon: "fa-cloud-bolt",
+                type: "noise-filtered",
+                options: {
+                  type: "brown",
+                  volume: -12,
+                  filter: { type: "lowpass", freq: 150, Q: 1 },
+                },
+              },
+              {
+                id: "wind",
+                name: "Angin",
+                icon: "fa-wind",
+                type: "noise-filtered",
+                options: {
+                  type: "white",
+                  volume: -15,
+                  filter: { type: "lowpass", freq: 700, Q: 2 },
+                  lfo: { type: "sine", freq: 0.5, min: 400, max: 1000 },
+                },
+              },
+              {
+                id: "creek",
+                name: "Sungai",
+                icon: "fa-leaf",
+                type: "noise-filtered",
+                options: {
+                  type: "pink",
+                  volume: -18,
+                  filter: { type: "bandpass", freq: 1200, Q: 2 },
+                  lfo: { type: "sine", freq: 0.8, min: 800, max: 1500 },
+                },
+              },
+              {
+                id: "fan",
+                name: "Kipas",
+                icon: "fa-fan",
+                type: "noise-filtered",
+                options: {
+                  type: "brown",
+                  volume: -17,
+                  filter: { type: "lowpass", freq: 300, Q: 1 },
+                },
+              },
+              {
+                id: "cafe",
+                name: "Kafe",
+                icon: "fa-mug-saucer",
+                type: "noise-filtered",
+                options: {
+                  type: "brown",
+                  volume: -26,
+                  filter: { type: "lowpass", freq: 500, Q: 1 },
+                },
+              },
+              {
+                id: "train",
+                name: "Kereta",
+                icon: "fa-train",
+                type: "noise-filtered",
+                options: {
+                  type: "brown",
+                  volume: -22,
+                  filter: { type: "lowpass", freq: 400, Q: 2 },
+                },
+              },
+              {
+                id: "airplane",
+                name: "Pesawat",
+                icon: "fa-plane-up",
+                type: "noise-filtered",
+                options: {
+                  type: "pink",
+                  volume: -20,
+                  filter: { type: "lowpass", freq: 800, Q: 1 },
+                },
+              },
+              {
+                id: "city",
+                name: "Kota",
+                icon: "fa-city",
+                type: "noise-filtered",
+                options: {
+                  type: "brown",
+                  volume: -28,
+                  filter: { type: "lowpass", freq: 350, Q: 1 },
+                },
+              },
+
+              // Synthesized Sounds
+              {
+                id: "birds",
+                name: "Burung",
+                icon: "fa-dove",
+                type: "synth",
+                synthType: "bird",
+              },
+              {
+                id: "crickets",
+                name: "Jangkrik",
+                icon: "fa-bug",
+                type: "synth",
+                synthType: "cricket",
+              },
+              {
+                id: "keyboard",
+                name: "Ketikan",
+                icon: "fa-keyboard",
+                type: "synth",
+                synthType: "keyboard",
+              },
+            ];
+            soundData.forEach(createSoundButton);
+            createUploadButton();
+          }
+
+          function createSoundButton(data) {
+            let soundObject;
+            // Build sound object based on type
+            if (data.type === "noise") {
+              soundObject = new Tone.Noise(data.options).toDestination();
+            } else if (data.type === "noise-filtered") {
+              const filter = new Tone.Filter(
+                data.options.filter.freq,
+                data.options.filter.type
+              ).toDestination();
+              if (data.options.filter.Q) {
+                filter.Q.value = data.options.filter.Q;
+              }
+              const noise = new Tone.Noise(data.options).connect(filter);
+              if (data.options.lfo) {
+                const lfo = new Tone.LFO(
+                  data.options.lfo.freq,
+                  data.options.lfo.min,
+                  data.options.lfo.max
+                ).start();
+                lfo.connect(filter.frequency);
+              }
+              soundObject = noise;
+            } else if (data.type === "synth") {
+              soundObject = createSynthSound(data.synthType);
+            }
+
+            const button = document.createElement("button");
+            button.className =
+              "sound-btn theme-bg-secondary p-6 rounded-xl shadow-sm flex flex-col items-center justify-center space-y-3 hover:scale-105 transform transition-transform duration-200";
+            button.innerHTML = `<i class="fa-solid ${data.icon} text-3xl theme-text-primary"></i><span class="font-medium theme-text-primary">${data.name}</span>`;
+            button.addEventListener("click", () =>
+              toggleSound(button, data.id, soundObject)
+            );
+            app.soundGrid.appendChild(button);
+          }
+
+          function createSynthSound(type) {
+            let sound;
+            switch (type) {
+              case "bird":
+                const birdSynth = new Tone.Synth({
+                  oscillator: { type: "sine" },
+                  envelope: {
+                    attack: 0.01,
+                    decay: 0.2,
+                    sustain: 0.1,
+                    release: 0.2,
+                  },
+                  volume: -18,
+                }).toDestination();
+                sound = new Tone.Loop((time) => {
+                  const freq = Math.random() * 1000 + 1000;
+                  birdSynth.triggerAttackRelease(freq, "16n", time);
+                }, "4n");
+                break;
+              case "cricket":
+                const cricketSynth = new Tone.Synth({
+                  oscillator: { type: "sine" },
+                  envelope: {
+                    attack: 0.001,
+                    decay: 0.05,
+                    sustain: 0,
+                    release: 0.05,
+                  },
+                  volume: -25,
+                }).toDestination();
+                sound = new Tone.Loop((time) => {
+                  cricketSynth.triggerAttackRelease(4000, "32n", time);
+                  cricketSynth.triggerAttackRelease(
+                    4000,
+                    "32n",
+                    time + Tone.Time("32n").toSeconds() * 1.5
+                  );
+                }, "8n");
+                break;
+              case "keyboard":
+                const keyboardSynth = new Tone.MembraneSynth({
+                  pitchDecay: 0.01,
+                  octaves: 2,
+                  envelope: { attack: 0.001, decay: 0.2, sustain: 0 },
+                  volume: -20,
+                }).toDestination();
+                sound = new Tone.Loop((time) => {
+                  keyboardSynth.triggerAttackRelease("C4", "32n", time);
+                }, "8n");
+                Tone.Transport.bpm.value = 140; // faster typing
+                break;
+            }
+            return sound;
+          }
+
+          function createUploadButton() {
+            const label = document.createElement("label");
+            label.htmlFor = "upload-sound-input";
+            label.className =
+              "sound-btn theme-bg-secondary p-6 rounded-xl shadow-sm flex flex-col items-center justify-center space-y-3 hover:scale-105 transform transition-transform duration-200 cursor-pointer";
+            label.innerHTML = `<i class="fa-solid fa-upload text-3xl theme-text-primary"></i><span class="font-medium theme-text-primary">Unggah</span>`;
+            const input = document.createElement("input");
+            input.type = "file";
+            input.id = "upload-sound-input";
+            input.accept = "audio/*";
+            input.className = "hidden";
+            input.addEventListener("change", handleSoundUpload);
+            app.soundGrid.appendChild(label);
+            app.soundGrid.appendChild(input);
+          }
+
+          function handleSoundUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const soundName = `upload-${Date.now()}`;
+            const url = URL.createObjectURL(file);
+            const player = new Tone.Player({
+              url,
+              loop: true,
+              autostart: false,
+              fadeOut: 0.5,
+            }).toDestination();
+            player
+              .load(url)
+              .then(() => {
+                const newButton = document.createElement("button");
+                newButton.className =
+                  "sound-btn theme-bg-secondary p-6 rounded-xl shadow-sm flex flex-col items-center justify-center space-y-3";
+                newButton.innerHTML = `<i class="fa-solid fa-file-audio text-3xl theme-text-primary"></i><span class="font-medium theme-text-primary truncate w-20">${file.name}</span>`;
+                newButton.addEventListener("click", () =>
+                  toggleSound(newButton, soundName, player)
+                );
+                app.soundGrid.appendChild(newButton);
+                showAlert(`'${file.name}' siap diputar.`);
+              })
+              .catch(() => showAlert("Gagal memuat file audio."));
+            event.target.value = "";
+          }
+
+          async function toggleSound(button, soundName, soundObject) {
+            await Tone.start();
+
+            if (appState.activeSounds.has(soundName)) {
+              // --- STOP SOUND ---
+              if (soundObject.stop) soundObject.stop();
+              appState.activeSounds.delete(soundName);
+              button.classList.remove("active");
+
+              // If it was a loop, check if we need to stop the transport
+              if (soundObject instanceof Tone.Loop) {
+                let anyLoopActive = false;
+                appState.activeSounds.forEach((sound) => {
+                  if (sound instanceof Tone.Loop) {
+                    anyLoopActive = true;
+                  }
+                });
+                if (!anyLoopActive) {
+                  Tone.Transport.stop();
+                }
+              }
+            } else {
+              // --- START SOUND ---
+              if (soundObject instanceof Tone.Loop) {
+                if (Tone.Transport.state !== "started") {
+                  Tone.Transport.start();
+                }
+                soundObject.start(0);
+              } else {
+                soundObject.start();
+              }
+              appState.activeSounds.set(soundName, soundObject);
+              button.classList.add("active");
+            }
+          }
+
+          function initMeditation() {
+            for (let i = 1; i <= 3; i++)
+              createMeditationTrack(`meditasi-${i}`, `Meditasi Terpandu ${i}`);
+          }
+
+          function createMeditationTrack(id, defaultName) {
+            const trackData = { player: null, isPlaying: false };
+            const container = document.createElement("div");
+            container.className =
+              "theme-bg-secondary p-4 rounded-lg flex items-center justify-between shadow-sm";
+            const nameLabel = document.createElement("span");
+            nameLabel.className = "font-medium theme-text-primary";
+            nameLabel.textContent = defaultName;
+            const controls = document.createElement("div");
+            controls.className = "flex items-center space-x-3";
+            const playBtn = document.createElement("button");
+            playBtn.className =
+              "play-meditation-btn p-2 w-10 h-10 rounded-full theme-accent disabled:opacity-50";
+            playBtn.innerHTML = `<i class="fa-solid fa-play"></i>`;
+            playBtn.disabled = true;
+            const uploadLabel = document.createElement("label");
+            uploadLabel.className =
+              "p-2 w-10 h-10 rounded-full hover:theme-accent cursor-pointer flex items-center justify-center";
+            uploadLabel.innerHTML = `<i class="fa-solid fa-upload"></i>`;
+            const uploadInput = document.createElement("input");
+            uploadInput.type = "file";
+            uploadInput.accept = "audio/*";
+            uploadInput.className = "hidden";
+            controls.append(playBtn, uploadLabel);
+            container.append(nameLabel, controls);
+            app.meditationTracksContainer.appendChild(container);
+            uploadLabel.appendChild(uploadInput);
+            uploadInput.addEventListener("change", (e) => {
+              const file = e.target.files[0];
+              if (!file) return;
+              const url = URL.createObjectURL(file);
+              if (trackData.player) trackData.player.dispose();
+              trackData.player = new Tone.Player(url).toDestination();
+              trackData.player.load(url).then(() => {
+                nameLabel.textContent = file.name;
+                playBtn.disabled = false;
+                showAlert(`Audio '${file.name}' berhasil dimuat.`);
+              });
+            });
+            playBtn.addEventListener("click", async () => {
+              await Tone.start();
+              if (!trackData.player) return;
+              if (trackData.isPlaying) {
+                trackData.player.stop();
+                playBtn.innerHTML = `<i class="fa-solid fa-play"></i>`;
+              } else {
+                if (
+                  appState.activeMeditation &&
+                  appState.activeMeditation.player !== trackData.player
+                ) {
+                  appState.activeMeditation.player.stop();
+                  appState.activeMeditation.button.innerHTML = `<i class="fa-solid fa-play"></i>`;
+                }
+                trackData.player.start();
+                playBtn.innerHTML = `<i class="fa-solid fa-pause"></i>`;
+                appState.activeMeditation = {
+                  player: trackData.player,
+                  button: playBtn,
+                };
+              }
+              trackData.isPlaying = !trackData.isPlaying;
+            });
+          }
+
+          function initJournal() {
+            app.journalTextarea.value =
+              localStorage.getItem("zenJournal") || "";
+            app.journalTextarea.addEventListener("input", () =>
+              localStorage.setItem("zenJournal", app.journalTextarea.value)
+            );
+          }
+
+          function initMoodTracker() {
+            const moods = ["🥳", "😊", "🙂", "😐", "😕", "😠", "😴"];
+            moods.forEach((mood) => {
+              const button = document.createElement("button");
+              button.className =
+                "mood-option text-3xl p-2 rounded-full transition-transform duration-200";
+              button.textContent = mood;
+              button.addEventListener("click", () => selectMood(mood, button));
+              app.moodSelector.appendChild(button);
+            });
+            app.prevMonthBtn.addEventListener("click", () => changeMonth(-1));
+            app.nextMonthBtn.addEventListener("click", () => changeMonth(1));
+            renderCalendar();
+          }
+
+          function selectMood(mood, button) {
+            const today = new Date();
+            const dateString = `${today.getFullYear()}-${String(
+              today.getMonth() + 1
+            ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+            let savedMoods = JSON.parse(localStorage.getItem("zenMoods")) || {};
+            savedMoods[dateString] = mood;
+            localStorage.setItem("zenMoods", JSON.stringify(savedMoods));
+            document
+              .querySelectorAll(".mood-option")
+              .forEach((btn) => btn.classList.remove("selected"));
+            button.classList.add("selected");
+            renderCalendar();
+          }
+
+          function changeMonth(direction) {
+            appState.mood.currentDate.setMonth(
+              appState.mood.currentDate.getMonth() + direction
+            );
+            renderCalendar();
+          }
+
+          function renderCalendar() {
+            const date = appState.mood.currentDate;
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            app.calendarHeader.textContent = date.toLocaleDateString("id-ID", {
+              month: "long",
+              year: "numeric",
+            });
+            app.calendarBody.innerHTML = "";
+            const firstDayOfMonth = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const savedMoods =
+              JSON.parse(localStorage.getItem("zenMoods")) || {};
+            for (let i = 0; i < firstDayOfMonth; i++)
+              app.calendarBody.appendChild(document.createElement("div"));
+            for (let day = 1; day <= daysInMonth; day++) {
+              const cell = document.createElement("div");
+              cell.className =
+                "calendar-day flex items-center justify-center rounded-full";
+              const dateString = `${year}-${String(month + 1).padStart(
+                2,
+                "0"
+              )}-${String(day).padStart(2, "0")}`;
+              if (savedMoods[dateString])
+                cell.innerHTML = `<span class="mood-emoji text-2xl">${savedMoods[dateString]}</span>`;
+              else
+                cell.innerHTML = `<span class="theme-text-secondary">${day}</span>`;
+              const today = new Date();
+              if (
+                day === today.getDate() &&
+                month === today.getMonth() &&
+                year === today.getFullYear()
+              )
+                cell.classList.add("theme-accent");
+              app.calendarBody.appendChild(cell);
+            }
+          }
+
+          function initFocusTimer() {
+            app.focusDurationInput.value =
+              localStorage.getItem("zenFocusTime") || 25;
+            app.breakDurationInput.value =
+              localStorage.getItem("zenBreakTime") || 5;
+            resetTimer();
+            app.timerStartBtn.addEventListener("click", startTimer);
+            app.timerPauseBtn.addEventListener("click", pauseTimer);
+            app.timerResetBtn.addEventListener("click", resetTimer);
+            app.timerModeFocusBtn.addEventListener("click", () =>
+              switchTimerMode("focus")
+            );
+            app.timerModeBreakBtn.addEventListener("click", () =>
+              switchTimerMode("break")
+            );
+            app.focusDurationInput.addEventListener("change", (e) =>
+              localStorage.setItem("zenFocusTime", e.target.value)
+            );
+            app.breakDurationInput.addEventListener("change", (e) =>
+              localStorage.setItem("zenBreakTime", e.target.value)
+            );
+          }
+
+          function switchTimerMode(mode) {
+            appState.timer.mode = mode;
+            app.timerModeFocusBtn.classList.toggle(
+              "theme-accent",
+              mode === "focus"
+            );
+            app.timerModeBreakBtn.classList.toggle(
+              "theme-accent",
+              mode === "break"
+            );
+            app.timerModeFocusBtn.classList.toggle(
+              "theme-bg-secondary",
+              mode !== "focus"
+            );
+            app.timerModeBreakBtn.classList.toggle(
+              "theme-bg-secondary",
+              mode !== "break"
+            );
+            resetTimer();
+          }
+
+          function updateTimerDisplay() {
+            const minutes = Math.floor(appState.timer.timeLeft / 60);
+            const seconds = appState.timer.timeLeft % 60;
+            app.timerDisplay.textContent = `${String(minutes).padStart(
+              2,
+              "0"
+            )}:${String(seconds).padStart(2, "0")}`;
+          }
+
+          function startTimer() {
+            if (appState.timer.isRunning) return;
+            appState.timer.isRunning = true;
+            app.timerStartBtn.classList.add("hidden");
+            app.timerPauseBtn.classList.remove("hidden");
+            appState.timer.interval = setInterval(() => {
+              appState.timer.timeLeft--;
+              updateTimerDisplay();
+              if (appState.timer.timeLeft <= 0) {
+                clearInterval(appState.timer.interval);
+                appState.timer.isRunning = false;
+                new Tone.Synth()
+                  .toDestination()
+                  .triggerAttackRelease("C5", "0.5");
+                const nextMode =
+                  appState.timer.mode === "focus" ? "break" : "focus";
+                showAlert(
+                  `Waktu ${appState.timer.mode} habis! Saatnya ${nextMode}.`
+                );
+                switchTimerMode(nextMode);
+              }
+            }, 1000);
+          }
+
+          function pauseTimer() {
+            clearInterval(appState.timer.interval);
+            appState.timer.isRunning = false;
+            app.timerStartBtn.classList.remove("hidden");
+            app.timerPauseBtn.classList.add("hidden");
+          }
+
+          function resetTimer() {
+            clearInterval(appState.timer.interval);
+            appState.timer.isRunning = false;
+            const duration =
+              appState.timer.mode === "focus"
+                ? app.focusDurationInput.value
+                : app.breakDurationInput.value;
+            appState.timer.timeLeft = parseInt(duration) * 60;
+            updateTimerDisplay();
+            app.timerStartBtn.classList.remove("hidden");
+            app.timerPauseBtn.classList.add("hidden");
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
